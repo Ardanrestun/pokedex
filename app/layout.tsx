@@ -17,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "PokeDex - Pokemon Encyclopedia",
   description: "A responsive Pokemon encyclopedia app built with Next.js by Ardan Restu Nugroho",
+  icons: {
+    icon: '/icon.ico',
+    shortcut: '/icon.ico',
+  },
 };
 
 export default function RootLayout({
