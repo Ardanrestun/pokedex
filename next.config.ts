@@ -9,9 +9,10 @@ const nextConfig: NextConfig = {
         pathname: '/PokeAPI/**',
       },
     ],
+    unoptimized: process.env.NODE_ENV === 'production',
   },
   output: 'standalone',
-   compiler: {
+  compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 };
