@@ -10,40 +10,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          cache: 'npm'
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build app
+      - name: Build Next.js
         run: npm run build
 
-      - name: Upload to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: ".next/standalone,.next/static,public,package.json"
-          target: "/var/www/pokedex-app"
-          strip_components: 0
-
-      - name: Restart with PM2
+      - name: Prepare VPS directory
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            mkdir -p /var/www/pokedex-app
+            rm -rf /var/www/pokedex-app/*
+
+      - name: Upload build
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: ".next/standalone/,.next/static/,public/,package.json,package-lock.json"
+          target: "/var/www/pokedex-app"
+          strip_components: 0
+
+      - name: Setup & restart PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            export PATH="/home/ardanrestun/.nvm/versions/node/v24.12.0/bin:$PATH"
             cd /var/www/pokedex-app
             cp -r .next/static .next/standalone/.next/
             cp -r public .next/standalone/
             cd .next/standalone
-            pm2 start server.js --name pokedex-app || pm2 restart pokedex-app
+            pm2 delete pokedex-app || true
+            pm2 start server.js --name pokedex-app
             pm2 save
