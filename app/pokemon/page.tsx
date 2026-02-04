@@ -93,7 +93,9 @@ export default function PokemonListPage() {
         {!loading && pokemons.length === 0 && isFiltering && !error && (
           <div className="text-center py-12">
             <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <span className="text-4xl">🔍</span>
+              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-700 mb-2">
               No Pokemon found
@@ -148,4 +150,3 @@ export default function PokemonListPage() {
     </div>
   );
 }
-
